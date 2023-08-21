@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using RedMango_API.Data;
 using RedMango_API.Models;
+using Azure.Storage.Blobs;
+using RedMango_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container.//Class that implements DB Context
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultDbConnection"));
@@ -14,8 +16,10 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 
 builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDBContext>();
 
+builder.Services.AddSingleton(u => new BlobServiceClient(builder.Configuration.GetConnectionString("Storage Account")));
+//Addsingleton is created once and stays forever, 
 
-
+builder.Services.AddSingleton<IBlobService, BlobService>();
 
 
 builder.Services.AddControllers();

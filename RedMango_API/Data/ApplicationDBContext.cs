@@ -13,6 +13,7 @@ namespace RedMango_API.Data
             {
                 
              }
+        //Entity framework will create a database table for these db sets
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }//Identityframework knows that application user is a subset of User
         public DbSet<MenuItem> MenuItems { get; set; }
 

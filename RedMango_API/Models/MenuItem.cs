@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace RedMango_API.Models
-{
+{/// <summary>
+/// This is the blueprint for the menu items in this api
+/// </summary>
     public class MenuItem
     {
         [Key]
