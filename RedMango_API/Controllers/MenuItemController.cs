@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RedMango_API.Data;
 using RedMango_API.Models;
 using RedMango_API.Models.Dto;
@@ -159,37 +160,45 @@ namespace RedMango_API.Controllers
             return _response;
         }
 
-        /// <summary>
-        /// Work on the update portion of API
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="menuItemUpdateDTO"></param>
-        /// <returns></returns>
-        [HttpPut("{id:int}")]
-        //Working with Azure storage and using FromForm becz need to upload menu Item
-        public async Task<ActionResult<ApiResponse>> UpdateMenuItem(int id, [FromForm] MenuItemUpdateDTO menuItemUpdateDTO)//working with Azure Blob so using async,FromForm - using the azure files for images, CreateDTO since I don't want my api domain objects to directly be seen by external api's
+        
+        [HttpPut("{id:int}")] //when we are updating, we need the ID of the endpoint
+       public async Task<ActionResult<ApiResponse>> UpdateMenuItem(int id, [FromForm] MenuItemUpdateDTO menuItemUpdateDTO)
         {
             try
             {
                 if (ModelState.IsValid)//required,range,required validates if endpoints are valid
                 {
-                    //check if uploaded when creating
-                    if (menuItemCreateDTO == null || menuItemCreateDTO.File.Length == 0)
+                    //check if the menuitem is available before update
+                    if (menuItemUpdateDTO == null || id != menuItemUpdateDTO.Id)
                     {
                         return BadRequest("File is required");
                     }
+                    //search for the ID of the primary key of the column in db, which is the ID column
+                    MenuItem menuItemFromDB = await _db.MenuItems.FindAsync(id);
 
-                    string fileName = $"{Guid.NewGuid()}{Path.GetExtension(menuItemCreateDTO.File.FileName)}";
+                    if(menuItemFromDB == null)
+                    {
+                        return BadRequest();
+                    }
+
+                    menuItemFromDB.Name = menuItemUpdateDTO.Name;
+                    menuItemFromDB.Price = menuItemUpdateDTO.Price;
+                    menuItemFromDB.Category = menuItemUpdateDTO.Category;
+                    menuItemFromDB.SpecialTag = menuItemUpdateDTO.SpecialTag;
+                    menuItemFromDB.Description = menuItemUpdateDTO.Description;
+
+
+                    string fileName = $"{Guid.NewGuid()}{Path.GetExtension(menuItemUpdateDTO.File.FileName)}";
 
                     // need to convert menuItemCreateDTO to MenuItem
                     MenuItem menuItemToCreate = new()
                     {
-                        Name = menuItemCreateDTO.Name,
-                        Price = menuItemCreateDTO.Price,
-                        Category = menuItemCreateDTO.Category,
-                        SpecialTag = menuItemCreateDTO.SpecialTag,
-                        Description = menuItemCreateDTO.Description,
-                        Image = await _blobService.UploadBlob(fileName, SD.SD_Storage_Container, menuItemCreateDTO.File)
+                        Name = menuItemUpdateDTO.Name,
+                        Price = menuItemUpdateDTO.Price,
+                        Category = menuItemUpdateDTO.Category,
+                        SpecialTag = menuItemUpdateDTO.SpecialTag,
+                        Description = menuItemUpdateDTO.Description,
+                        Image = await _blobService.UploadBlob(fileName, SD.SD_Storage_Container, menuItemUpdateDTO.File)
                     };
                     _db.MenuItems.Add(menuItemToCreate);
                     //this adds the menu item that is created to the database
