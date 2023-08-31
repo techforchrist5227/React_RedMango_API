@@ -125,7 +125,7 @@ namespace RedMango_API.Controllers
 
                     string fileName = $"{Guid.NewGuid()}{Path.GetExtension(menuItemCreateDTO.File.FileName)}";
 
-                    // need to convert menuItemCreateDTO to MenuItem
+                    // need to convert MenuItem to menuItemToCreate
                     MenuItem menuItemToCreate = new()
                     {
                         Name = menuItemCreateDTO.Name,

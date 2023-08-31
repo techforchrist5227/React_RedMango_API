@@ -8,7 +8,7 @@ namespace RedMango_API.Data
     //this is the application db context to connect the api to the sql database
     public class ApplicationDBContext : IdentityDbContext<ApplicationUser>//uses authentication and authorization
     {       
-            //constructor that initializes the access to the DB Context
+            //constructor that initializes the access to the DB Context. passes in "options" as an argument to the "identitydbcontext"
             public ApplicationDBContext (DbContextOptions options) : base(options)  
             {
                 
